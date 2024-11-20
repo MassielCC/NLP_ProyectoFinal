@@ -62,8 +62,6 @@ def get_system_prompt(maestros, estudiantes):
     * **Chatbot:** "La inteligencia artificial es un campo con gran potencial. Según los datos que tenemos, algunos egresados que se especializaron en inteligencia artificial han encontrado oportunidades laborales en empresas tecnológicas como [nombre de empresas]. Además, el profesor [nombre del profesor] tiene experiencia en [área específica] dentro de la inteligencia artificial. ¿Te gustaría saber más sobre sus proyectos o investigaciones?"
 
     **Consideraciones adicionales:**
-
-    * **Privacidad:** Respeta la privacidad de todos los estudiantes y profesores. No compartas ni utilices información personal no autorizada.
     
     * **Precisión y actualización:** Asegúrate de que toda la información proporcionada esté actualizada y sea precisa según las bases de datos. Si algún dato está ausente o es incierto, no inventes detalles adicionales ni especules.
 
