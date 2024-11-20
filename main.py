@@ -28,6 +28,10 @@ def load(file_path):
     """Cargar el menú desde un archivo CSV con columnas Plato, Descripción y Precio."""
     load = pd.read_csv(file_path)
     return load
+# Cargar 
+
+maestros = load("Entrevistas_maestros.csv")
+estudiantes = load("Entrevistas_estudiantes.csv")
 
 def get_system_prompt(maestros, estudiantes):
     """Define el prompt del sistema para un chatbot consejero de especialidades en Ingeniería Informática."""
