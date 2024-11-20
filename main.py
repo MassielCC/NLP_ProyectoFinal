@@ -156,13 +156,8 @@ if prompt := st.chat_input():
         with st.chat_message("assistant", avatar="👨‍💻"):
             st.markdown("Por favor, mantengamos la conversación respetuosa.")
     else:
-        if mensaje_error:
-            # Si hay un error, mostrar el mensaje de error
-            with st.chat_message("assistant", avatar="👨‍💻"):
-                st.markdown(mensaje_error)
-        else:
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(prompt)
-            output = generate_response(prompt)
-            with st.chat_message("assistant", avatar="👨‍💻"):
-                st.markdown(output)
+        with st.chat_message("user", avatar="👤"):
+            st.markdown(prompt)
+        output = generate_response(prompt)
+        with st.chat_message("assistant", avatar="👨‍💻"):
+            st.markdown(output)
