@@ -17,7 +17,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Configuración inicial de la página
 st.set_page_config(page_title="SazónBot", page_icon=":pot_of_food:")
-st.title("Nova-Infor")
+st.title("👨‍💻Nova-Infor")
 
 # Mensaje de bienvenida
 intro = """¡Bienvenido a Nova-Infor, tu consejero virtual"""
@@ -143,7 +143,7 @@ for message in st.session_state["messages"]:
     if message["role"] == "system":
         continue
     elif message["role"] == "assistant":
-        with st.chat_message(message["role"], avatar="👨‍🍳"):
+        with st.chat_message(message["role"], avatar="👨‍💻"):
             st.markdown(message["content"])
     else:
         with st.chat_message(message["role"], avatar="👤"):
@@ -153,16 +153,16 @@ for message in st.session_state["messages"]:
 if prompt := st.chat_input():
     # Verificar si el contenido es inapropiado
     if check_for_inappropriate_content(prompt):
-        with st.chat_message("assistant", avatar="👨‍🍳"):
+        with st.chat_message("assistant", avatar="👨‍💻"):
             st.markdown("Por favor, mantengamos la conversación respetuosa.")
     else:
         if mensaje_error:
             # Si hay un error, mostrar el mensaje de error
-            with st.chat_message("assistant", avatar="👨‍🍳"):
+            with st.chat_message("assistant", avatar="👨‍💻"):
                 st.markdown(mensaje_error)
         else:
             with st.chat_message("user", avatar="👤"):
                 st.markdown(prompt)
             output = generate_response(prompt)
-            with st.chat_message("assistant", avatar="👨‍🍳"):
+            with st.chat_message("assistant", avatar="👨‍💻"):
                 st.markdown(output)
