@@ -31,7 +31,7 @@ def load(file_path):
 
 # Cargar el menú y distritos
 maestros = load("Entrevistas_maestros.csv")
-#estudiantes = load("Entrevistas_estudiantes.csv")
+estudiantes = load("Entrevistas_estudiantes.csv")
 
 def get_system_prompt(maestros, estudiantes):
     """Define el prompt del sistema para el bot de Sazón incluyendo el menú y distritos."""
