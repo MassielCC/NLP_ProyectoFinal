@@ -33,7 +33,7 @@ def load(file_path):
 maestros = load("Entrevistas_maestros.csv")
 estudiantes = load("Entrevistas_estudiantes.csv")
 
-def get_system_prompt(mestros, estudiantes):
+def get_system_prompt(maestros, estudiantes):
     """Define el prompt del sistema para el bot de Sazón incluyendo el menú y distritos."""
     system_prompt = f"""
     Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática. Tu objetivo es ayudar a los estudiantes a descubrir su especialidad ideal en función de sus intereses, habilidades y metas profesionales.
@@ -123,7 +123,7 @@ def adjust_tone(tone="friendly"):
 
 # Estado inicial de la conversación
 initial_state = [
-    {"role": "system", "content": get_system_prompt(menu, distritos)},
+    {"role": "system", "content": get_system_prompt(maestros, estudiantes)},
     {
         "role": "assistant",
         "content": f"¡Hola! Soy tu asistente virtual para elegir la especialidad ideal en Ingeniería Informática. Para comenzar, cuéntame un poco sobre ti.",
