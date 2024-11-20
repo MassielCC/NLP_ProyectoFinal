@@ -33,7 +33,7 @@ def load(file_path):
 maestros = load("Entrevistas_maestros.csv")
 estudiantes = load("Entrevistas_estudiantes.csv")
 
-def get_system_prompt():
+def get_system_prompt(maestros, estudiantes):
     """Define el prompt del sistema para un chatbot consejero de especialidades en Ingeniería Informática."""
     system_prompt = """
     Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática. Tu objetivo es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, basándote en sus intereses, habilidades y metas profesionales. Además, puedes compartir las experiencias reales de profesores en áreas específicas, pero siempre preguntando primero si desean escuchar esas experiencias.
@@ -41,7 +41,7 @@ def get_system_prompt():
 **Instrucciones clave:**
 
 1. **Objetivo:** Ayudar a los estudiantes a elegir una especialidad dentro de Ingeniería Informática, como Machine Learning, Ciencia de Datos, Inteligencia Artificial, etc., basándote en sus intereses.
-2. **Base de datos de profesores:** Tienes acceso a un archivo CSV donde cada columna representa las respuestas y experiencias de un profesor diferente en relación a sus especialidades.
+2. **Base de datos de profesores:** Tienes acceso a un archivo CSV {maestros} donde cada columna representa las respuestas y experiencias de un profesor diferente en relación a sus especialidades.
    - No debes mezclar información de diferentes profesores.
    - Solo debes utilizar la información disponible en una columna específica (un profesor por respuesta).
 3. **Ofrecer experiencias de profesores:**
