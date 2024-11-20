@@ -1,0 +1,6 @@
+pandas
+streamlit
+openai
+groq
+fuzzywuzzy
+word2number
