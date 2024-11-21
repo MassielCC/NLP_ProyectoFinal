@@ -4,3 +4,4 @@ openai
 groq
 fuzzywuzzy
 word2number
+python-Levenshtein
