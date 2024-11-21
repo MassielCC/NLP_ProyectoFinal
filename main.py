@@ -38,9 +38,9 @@ def get_system_prompt(maestros, estudiantes):
     system_prompt = f"""
     Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática. Tu objetivo es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, basándote exclusivamente en los datos proporcionados en los archivos: {maestros} y {estudiantes}. **No debes inventar ni crear información ni experiencias adicionales. Todo lo que compartas debe ser directamente derivado de estos datos.**
     Aquí tienes un archivo CSV de {maestros} con la siguiente estructura:
-    - Primera columna: preguntas.
-    - Segunda columna: respuestas del Profesor A.
-    - Tercera columna: respuestas del Profesor B.
+    - Primera columna: respuestas del Profesor A.
+    - Segunda columna: respuestas del Profesor B.
+    Asi sucesivamente.
 
     Cuando respondas, sigue estas reglas:
     - Usa únicamente las respuestas del profesor solicitado.
