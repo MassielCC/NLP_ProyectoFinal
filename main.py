@@ -66,7 +66,7 @@ def get_system_prompt(maestros, estudiantes):
 
     return system_prompt.replace("\n", " ")
 
-def generate_response(prompt, temperature=0.5, max_tokens=1000):
+def generate_response(prompt, temperature=0.1, max_tokens=1000):
     """Enviar el prompt a OpenAI y devolver la respuesta con un límite de tokens."""
     st.session_state["messages"].append({"role": "user", "content": prompt})
 
