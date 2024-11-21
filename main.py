@@ -40,7 +40,7 @@ def load_estudiantes(file_path):
     return estudiantes_df
 
 # Cargar los datos
-maestros_df = load_maestros("Entrevistas_maestros_ver2.csv")
+maestros_df = load_maestros("Entrevistas_maestros.csv")
 estudiantes_df = load_estudiantes("Entrevistas_estudiantes.csv")
 
 # Combinar las preguntas y respuestas en una lista para vectorización
