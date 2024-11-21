@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Configuración inicial de la página
-st.set_page_config(page_title="SazónBot", page_icon=":pot_of_food:")
+st.set_page_config(page_title="Nova-Infor", page_icon=":pot_of_food:")
 st.title("👨‍💻Nova-Infor")
 
 # Mensaje de bienvenida
