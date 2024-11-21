@@ -80,8 +80,8 @@ El archivo {maestros} contiene las respuestas y opiniones de diferentes profesor
      - Columna 1: Profesor A: "En 2017, comencé a trabajar en Machine Learning..."
      - Columna 2: Profesor B: "Mis áreas de especialización son Inteligencia Artificial y Data Science..."
    - **Archivo de Estudiantes:**
-     - Columna 1: Estudiante A: "Elegí la especialidad de Inteligencia Artificial porque me interesa trabajar con datos..."
-     - Columna 2: Estudiante B: "Estudié Ciencias de la Computación porque me gustan las matemáticas y la programación..."
+     - Columna 1: Estudiante A: "Estudie..."
+     - Columna 2: Estudiante B: "Estudié..."
     """
 
     return system_prompt.replace("\n", " ")
