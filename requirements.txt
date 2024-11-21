@@ -6,3 +6,4 @@ fuzzywuzzy
 word2number
 python-Levenshtein
 TfidfVectorizer
+cosine_similarity
