@@ -73,7 +73,7 @@ def buscar_respuesta(prompt):
     prompt_vector = vectorizer.transform([prompt])
     similitudes = cosine_similarity(prompt_vector, X).flatten()
     max_similitud = similitudes.max()
-    if max_similitud > 0.3:  # Umbral de similitud ajustable
+    if max_similitud > 0.5:  # Umbral de similitud ajustable
         index = similitudes.argmax()
         respuesta = todos_los_datos[index]['respuesta']
         origen = todos_los_datos[index]['origen']
@@ -86,7 +86,7 @@ def get_system_prompt():
     """Define el prompt del sistema para el chatbot."""
     system_prompt = """
     Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática.
-    Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados de maestros y estudiantes, usando {todos_los_datos}.
+    Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados de maestros y estudiantes.
     Si no tienes una respuesta directa en tus datos, proporciona una respuesta general y útil basada en tu conocimiento.
     """
     return system_prompt.strip()
