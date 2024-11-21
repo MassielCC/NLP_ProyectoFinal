@@ -86,7 +86,7 @@ def get_system_prompt():
     """Define el prompt del sistema para el chatbot."""
     system_prompt = """
     Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática.
-    Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados de maestros y estudiantes.
+    Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados de maestros y estudiantes, usando la función buscar_respuesta().
     Si no tienes una respuesta directa en tus datos, proporciona una respuesta general y útil basada en tu conocimiento.
     """
     return system_prompt.strip()
