@@ -40,7 +40,7 @@ def get_system_prompt(maestros, estudiantes):
 
 El archivo **maestros** contiene las respuestas y opiniones de diferentes profesores, donde:
 - Cada columna del archivo representa un profesor diferente.
-- Las filas contienen información como trayectoria profesional, especialidad, habilidades blandas y tecnicas que se necesita para esa especialidad, entre otros puntos.
+- Las filas contienen información como años de experiencia, áreas de especialización, motivaciones, expectativas sobre la carrera, especialidades más demandadas, y mucho más.
 - Las áreas de especialización están descritas en el contenido de las celdas y tambien recomendaciones. Debes extraer la información según la columna (profesor) consultada.
 
 ### Instrucciones clave:
