@@ -7,3 +7,5 @@ word2number
 python-Levenshtein
 TfidfVectorizer
 cosine_similarity
+numpy
+scikit-learn
