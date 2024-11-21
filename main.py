@@ -2,116 +2,135 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 from copy import deepcopy
-from openai import OpenAI
+import openai
 import csv
 import re
 import pytz
 import json
 import logging
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Configura el logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Inicializar el cliente de OpenAI con la clave API
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Inicializar la clave API de OpenAI
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Configuración inicial de la página
-st.set_page_config(page_title="SazónBot", page_icon=":pot_of_food:")
-st.title("👨‍💻Nova-Infor")
+st.set_page_config(page_title="Nova-Infor", page_icon=":computer:")
+st.title("👨‍💻 Nova-Infor")
 
 # Mensaje de bienvenida
-intro = """¡Bienvenido a Nova-Infor, tu consejero virtual"""
+intro = """¡Bienvenido a Nova-Infor, tu consejero virtual."""
 st.markdown(intro)
 
-# Cargar desde un archivo CSV
-def load(file_path):
-    """Cargar el menú desde un archivo CSV con columnas Plato, Descripción y Precio."""
-    load = pd.read_csv(file_path)
-    return load
-# Cargar 
+# Función para cargar y procesar los datos de los archivos CSV
+def load_data(file_path):
+    """Cargar datos desde un archivo CSV y convertirlo en un DataFrame."""
+    try:
+        df = pd.read_csv(file_path)
+        df = df.fillna('')  # Rellenar valores nulos con cadenas vacías
+        return df
+    except Exception as e:
+        st.error(f"Error al cargar el archivo {file_path}: {e}")
+        return pd.DataFrame()
 
-maestros = load("Entrevistas_maestros_ver2.csv")
-estudiantes = load("Entrevistas_estudiantes.csv")
+# Cargar los datos
+maestros_df = load_data("Entrevistas_maestros_ver2.csv")
+estudiantes_df = load_data("Entrevistas_estudiantes.csv")
 
-def get_system_prompt(maestros, estudiantes):
-    """Define el prompt del sistema para un chatbot consejero de especialidades en Ingeniería Informática."""
-    system_prompt = f"""
-    Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática. Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados en los archivos CSV de **maestros** y **estudiantes**.
+# Verificar si los DataFrames están vacíos
+if maestros_df.empty or estudiantes_df.empty:
+    st.stop()  # Detener la ejecución si no se pudieron cargar los datos
 
-El archivo **maestros** contiene las respuestas y opiniones de diferentes profesores, donde:
-- Cada columna del archivo representa un profesor diferente.
-- Las filas contienen información como años de experiencia, áreas de especialización, motivaciones, expectativas sobre la carrera, especialidades más demandadas, y mucho más.
-- Las áreas de especialización están descritas en el contenido de las celdas y tambien recomendaciones. Debes extraer la información según la columna (profesor) consultada.
+# Preparar los datos para la búsqueda
+def preparar_datos(df):
+    """Preparar datos para la búsqueda basada en similitud de coseno."""
+    datos = []
+    for index, row in df.iterrows():
+        pregunta = row['Pregunta']
+        for col in df.columns:
+            if col != 'Pregunta' and row[col].strip() != '':
+                datos.append({
+                    'pregunta': pregunta,
+                    'respuesta': row[col],
+                    'origen': col  # Nombre del profesor o estudiante
+                })
+    return datos
 
-### Instrucciones clave:
+maestros_data = preparar_datos(maestros_df)
+estudiantes_data = preparar_datos(estudiantes_df)
+todos_los_datos = maestros_data + estudiantes_data
 
-1. **Uso exclusivo de los datos disponibles:**
-   Todas tus respuestas deben basarse en los datos contenidos en los archivos proporcionados de **maestros** y **estudiantes**. No debes inventar ni agregar información no contenida en los archivos.
+# Crear vectorizador TF-IDF y ajustar con las preguntas y respuestas
+vectorizer = TfidfVectorizer()
+corpus = [dato['pregunta'] + ' ' + dato['respuesta'] for dato in todos_los_datos]
+X = vectorizer.fit_transform(corpus)
 
-2. **Interpretación del archivo CSV de profesores:**
-   - Cada columna en el archivo **maestros** representa las respuestas de un profesor específico. 
-   - Si un estudiante te pide información de un profesor en particular (por ejemplo, "Profesor A"), debes limitarte a extraer datos solo de esa columna.
-   - Si el estudiante no especifica el profesor, pídele que elija uno de los disponibles.
-   - Si una pregunta sobre un área específica de la ingeniería (por ejemplo, "Machine Learning") es realizada, debes buscar en las respuestas de los profesores para ver si alguno menciona esa área y proporcionar la información encontrada en su respectiva columna.
+def buscar_respuesta(prompt):
+    """Buscar la respuesta más relevante en los datos utilizando similitud de coseno."""
+    prompt_vector = vectorizer.transform([prompt])
+    similitudes = cosine_similarity(prompt_vector, X).flatten()
+    max_similitud = similitudes.max()
+    if max_similitud > 0.3:  # Umbral de similitud ajustable
+        index = similitudes.argmax()
+        respuesta = todos_los_datos[index]['respuesta']
+        origen = todos_los_datos[index]['origen']
+        pregunta_original = todos_los_datos[index]['pregunta']
+        return respuesta, origen, pregunta_original
+    else:
+        return None, None, None
 
-3. **Personalización basada en datos:**
-   Las respuestas deben estar adaptadas a los intereses del estudiante, utilizando solo la información disponible. No debes agregar detalles adicionales que no estén en el archivo.
-
-4. **Respuestas por especialidad:**
-   Si el estudiante está interesado en una especialidad (por ejemplo, "Ciencias de la Computación" o "Ingeniería Financiera"), consulta el archivo para identificar a los profesores que mencionan experiencia en esa área. 
-   
-5. **Formato de respuesta:**
-   Cuando respondas, hazlo de manera clara y concisa, siempre citando al profesor correspondiente. Por ejemplo: 
-   - "El profesor A menciona que ha trabajado durante 7 años en Machine Learning y Visión Computacional desde 2013."
-   - "El profesor B tiene experiencia en Inteligencia Artificial y Ciencias de Datos, con énfasis en análisis estadístico y matemático."
-
-6. **No combinar respuestas:** 
-   No combines respuestas de diferentes profesores a menos que el estudiante te lo solicite explícitamente. Si el profesor solicitado no tiene información disponible sobre un tema específico, indícalo claramente.
-
-7. **Ejemplo de interacción:**
-   * **Estudiante:** "Estoy interesado en inteligencia artificial. ¿Qué profesor me recomendarías?"
-   * **Chatbot:** "El profesor A menciona que tiene experiencia en Machine Learning y Visión Computacional desde 2013. El profesor B ha trabajado en Inteligencia Artificial y Ciencias de Datos. ¿Te gustaría saber más sobre sus proyectos o investigaciones?"
-
-8. **Claridad y concisión:** 
-   Responde con información clara y directa. Si no tienes datos suficientes sobre una pregunta específica, di que la información no está disponible.
-
-9. **Ayuda para la toma de decisiones:**
-   El objetivo es ayudar al estudiante a tomar decisiones informadas sobre su especialidad, basándote en la información disponible en el archivo de maestros. Si no tienes suficiente información, sé honesto y di que no puedes proporcionar detalles adicionales.
-
-10. **Ejemplo de datos CSV:**
-   Aquí tienes un ejemplo del archivo CSV de profesores:
-   - Columna 1: Profesor A: "En 2017, comencé a trabajar en Machine Learning..."
-   - Columna 2: Profesor B: "Mis áreas de especialización son Inteligencia Artificial y Data Science..."
-   - Columna 3: Profesor C: "He trabajado en Ingeniería Financiera y resolución de problemas estadísticos..."
-
+def get_system_prompt():
+    """Define el prompt del sistema para el chatbot."""
+    system_prompt = """
+    Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática.
+    Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados de maestros y estudiantes.
+    Si no tienes una respuesta directa en tus datos, proporciona una respuesta general y útil basada en tu conocimiento.
     """
-
-    return system_prompt.replace("\n", " ")
+    return system_prompt.strip()
 
 def generate_response(prompt, temperature=0.5, max_tokens=1000):
-    """Enviar el prompt a OpenAI y devolver la respuesta con un límite de tokens."""
+    """Generar una respuesta basada en los datos o utilizando OpenAI."""
     st.session_state["messages"].append({"role": "user", "content": prompt})
 
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=st.session_state["messages"],
-        temperature=temperature,
-        max_tokens=max_tokens,
-        stream=False,
-    )
-    response = completion.choices[0].message.content
-    st.session_state["messages"].append({"role": "assistant", "content": response})
-    return response
+    # Intentar encontrar una respuesta en los datos
+    respuesta, origen, pregunta_original = buscar_respuesta(prompt)
+
+    if respuesta:
+        # Si se encuentra una respuesta, devolverla
+        response = f"*{origen}* responde a tu consulta relacionada con *'{pregunta_original}'*:\n\n{respuesta}"
+        st.session_state["messages"].append({"role": "assistant", "content": response})
+        return response
+    else:
+        # Si no se encuentra respuesta, usar OpenAI
+        messages = st.session_state["messages"]
+        messages.insert(0, {"role": "system", "content": get_system_prompt()})
+
+        try:
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            response = completion.choices[0].message.content
+            st.session_state["messages"].append({"role": "assistant", "content": response})
+            return response
+        except Exception as e:
+            st.error(f"Error al llamar a la API de OpenAI: {e}")
+            logging.error(f"Error al llamar a la API de OpenAI: {e}")
+            return "Lo siento, ocurrió un error al procesar tu solicitud."
 
 # Función para verificar contenido inapropiado
 def check_for_inappropriate_content(prompt):
     """Verifica si el prompt contiene contenido inapropiado utilizando la API de Moderación de OpenAI."""
     try:
-        response = client.moderations.create(input=prompt)
+        response = openai.Moderation.create(input=prompt)
         logging.info(f"Moderation API response: {response}")
-        moderation_result = response.results[0]
-        # Verifica si está marcado como inapropiado
-        if moderation_result.flagged:
+        moderation_result = response["results"][0]
+        if moderation_result["flagged"]:
             return True
         else:
             return False
@@ -119,34 +138,28 @@ def check_for_inappropriate_content(prompt):
         logging.error(f"Error al llamar a la API de Moderación: {e}")
         return False
 
-# Ajustar el tono del bot
-def adjust_tone(tone="friendly"):
-    """Ajustar el tono del bot según las preferencias del cliente."""
-    if tone == "formal":
-        st.session_state["tone"] = "formal"
-        return "Eres un asistente formal y educado."
-    else:
-        st.session_state["tone"] = "friendly"
-        return "Eres un asistente amigable y relajado."
-
 # Estado inicial de la conversación
-initial_state = [
-    {"role": "system", "content": get_system_prompt(maestros, estudiantes)},
-    {
-        "role": "assistant",
-        "content": f"¡Hola! Soy tu asistente virtual para elegir la especialidad ideal en Ingeniería Informática. Para comenzar, cuéntame un poco sobre ti.",
-    },
-]
-
 if "messages" not in st.session_state:
-    st.session_state["messages"] = deepcopy(initial_state)
+    st.session_state["messages"] = [
+        {"role": "system", "content": get_system_prompt()},
+        {
+            "role": "assistant",
+            "content": "¡Hola! Soy tu asistente virtual para elegir la especialidad ideal en Ingeniería Informática. ¿En qué puedo ayudarte hoy?",
+        },
+    ]
 
 # Botón para eliminar conversación
 clear_button = st.button("Eliminar conversación", key="clear")
 if clear_button:
-    st.session_state["messages"] = deepcopy(initial_state)
+    st.session_state["messages"] = [
+        {"role": "system", "content": get_system_prompt()},
+        {
+            "role": "assistant",
+            "content": "¡Hola de nuevo! Estoy listo para ayudarte en lo que necesites sobre Ingeniería Informática.",
+        },
+    ]
 
-# Mostrar mensajes de chat desde el historial al recargar la aplicación
+# Mostrar mensajes de chat desde el historial
 for message in st.session_state["messages"]:
     if message["role"] == "system":
         continue
