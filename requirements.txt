@@ -5,3 +5,4 @@ groq
 fuzzywuzzy
 word2number
 python-Levenshtein
+TfidfVectorizer
