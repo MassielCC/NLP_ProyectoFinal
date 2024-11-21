@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 from copy import deepcopy
-import openai
+from openai import OpenAI
 import csv
 import re
 import pytz
