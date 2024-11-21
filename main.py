@@ -37,7 +37,7 @@ def load_data(file_path):
         return pd.DataFrame()
 
 # Cargar los datos
-maestros_df = load_data("Entrevistas_maestros_ver2.csv")
+maestros_df = load_data("Entrevistas_maestros.csv")
 estudiantes_df = load_data("Entrevistas_estudiantes.csv")
 
 # Verificar si los DataFrames están vacíos
