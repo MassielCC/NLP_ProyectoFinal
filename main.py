@@ -22,36 +22,38 @@ st.set_page_config(page_title="Nova-Infor", page_icon=":computer:")
 st.title("👨‍💻 Nova-Infor")
 
 # Mensaje de bienvenida
-intro = """¡Bienvenido a Nova-Infor, tu consejero virtual en Ingeniería Informática."""
+intro = """¡Bienvenido a Nova-Infor, tu consejero virtual."""
 st.markdown(intro)
 
-# Cargar y procesar los datos de maestros
-def load_maestros(file_path):
-    """Cargar datos de maestros desde un archivo CSV y convertirlo en un DataFrame."""
-    maestros_df = pd.read_csv(file_path)
-    maestros_df = maestros_df.fillna('')
-    return maestros_df
-
-# Cargar y procesar los datos de estudiantes
-def load_estudiantes(file_path):
-    """Cargar datos de estudiantes desde un archivo CSV y convertirlo en un DataFrame."""
-    estudiantes_df = pd.read_csv(file_path)
-    estudiantes_df = estudiantes_df.fillna('')
-    return estudiantes_df
+# Función para cargar y procesar los datos de los archivos CSV
+def load_data(file_path):
+    """Cargar datos desde un archivo CSV y convertirlo en un DataFrame."""
+    try:
+        df = pd.read_csv(file_path)
+        df = df.fillna('')  # Rellenar valores nulos con cadenas vacías
+        return df
+    except Exception as e:
+        st.error(f"Error al cargar el archivo {file_path}: {e}")
+        return pd.DataFrame()
 
 # Cargar los datos
-maestros_df = load_maestros("Entrevistas_maestros.csv")
-estudiantes_df = load_estudiantes("Entrevistas_estudiantes.csv")
+maestros_df = load_data("Entrevistas_maestros_ver2.csv")
+estudiantes_df = load_data("Entrevistas_estudiantes.csv")
 
-# Combinar las preguntas y respuestas en una lista para vectorización
+# Verificar si los DataFrames están vacíos
+if maestros_df.empty or estudiantes_df.empty:
+    st.stop()  # Detener la ejecución si no se pudieron cargar los datos
+
+# Preparar los datos para la búsqueda
 def preparar_datos(df):
     """Preparar datos para la búsqueda basada en similitud de coseno."""
     datos = []
     for index, row in df.iterrows():
+        pregunta = row['Pregunta']
         for col in df.columns:
             if col != 'Pregunta' and row[col].strip() != '':
                 datos.append({
-                    'pregunta': row['Pregunta'],
+                    'pregunta': pregunta,
                     'respuesta': row[col],
                     'origen': col  # Nombre del profesor o estudiante
                 })
@@ -71,7 +73,7 @@ def buscar_respuesta(prompt):
     prompt_vector = vectorizer.transform([prompt])
     similitudes = cosine_similarity(prompt_vector, X).flatten()
     max_similitud = similitudes.max()
-    if max_similitud > 0.3:  # Umbral de similitud
+    if max_similitud > 0.3:  # Umbral de similitud ajustable
         index = similitudes.argmax()
         respuesta = todos_los_datos[index]['respuesta']
         origen = todos_los_datos[index]['origen']
@@ -84,11 +86,10 @@ def get_system_prompt():
     """Define el prompt del sistema para el chatbot."""
     system_prompt = """
     Eres un chatbot experto en orientación académica para estudiantes de Ingeniería Informática.
-    Tu objetivo es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera.
-    Utiliza las respuestas de los profesores y estudiantes proporcionadas en los datos.
-    Si no tienes una respuesta directa en tus datos, proporciona una respuesta general y útil.
+    Tu tarea es ayudar a los estudiantes a descubrir su especialidad ideal dentro de la carrera, utilizando exclusivamente los datos proporcionados de maestros y estudiantes.
+    Si no tienes una respuesta directa en tus datos, proporciona una respuesta general y útil basada en tu conocimiento.
     """
-    return system_prompt
+    return system_prompt.strip()
 
 def generate_response(prompt, temperature=0.5, max_tokens=1000):
     """Generar una respuesta basada en los datos o utilizando OpenAI."""
@@ -107,15 +108,20 @@ def generate_response(prompt, temperature=0.5, max_tokens=1000):
         messages = st.session_state["messages"]
         messages.insert(0, {"role": "system", "content": get_system_prompt()})
 
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
-        response = completion.choices[0].message.content
-        st.session_state["messages"].append({"role": "assistant", "content": response})
-        return response
+        try:
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            response = completion.choices[0].message.content
+            st.session_state["messages"].append({"role": "assistant", "content": response})
+            return response
+        except Exception as e:
+            st.error(f"Error al llamar a la API de OpenAI: {e}")
+            logging.error(f"Error al llamar a la API de OpenAI: {e}")
+            return "Lo siento, ocurrió un error al procesar tu solicitud."
 
 # Función para verificar contenido inapropiado
 def check_for_inappropriate_content(prompt):
@@ -138,7 +144,7 @@ if "messages" not in st.session_state:
         {"role": "system", "content": get_system_prompt()},
         {
             "role": "assistant",
-            "content": "¡Hola! Soy tu asistente virtual para ayudarte a elegir la especialidad ideal en Ingeniería Informática. ¿En qué puedo ayudarte hoy?",
+            "content": "¡Hola! Soy tu asistente virtual para elegir la especialidad ideal en Ingeniería Informática. ¿En qué puedo ayudarte hoy?",
         },
     ]
 
