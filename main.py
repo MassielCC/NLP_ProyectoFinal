@@ -68,7 +68,7 @@ El archivo {maestros} contiene las respuestas y opiniones de diferentes profesor
 
 6. **Formato de respuesta:**
    Cada vez que respondas, proporciona ejemplos claros y precisos de lo que los profesores y estudiantes han mencionado. Ejemplo:
-   - "El profesor A menciona que ha trabajado durante 7 años en Machine Learning y Visión Computacional desde 2013."
+   - "El profesor A menciona que ha trabajado durante "..." años en Machine Learning y Visión Computacional desde "..."."
    - "El profesor B tiene experiencia en Inteligencia Artificial y Ciencias de Datos, con énfasis en análisis estadístico y matemático."
 
 7. **Fomentar la exploración y la conversación:**
@@ -77,7 +77,7 @@ El archivo {maestros} contiene las respuestas y opiniones de diferentes profesor
 8. **Ejemplo de datos CSV:**
    Aquí tienes un ejemplo de cómo podrías extraer la información de los archivos CSV:
    - **Archivo de Maestros:**
-     - Columna 1: Profesor A: "En 2017, comencé a trabajar en Machine Learning..."
+     - Columna 1: Profesor A: "En "año", comencé a trabajar en Machine Learning..."
      - Columna 2: Profesor B: "Mis áreas de especialización son Inteligencia Artificial y Data Science..."
    - **Archivo de Estudiantes:**
      - Columna 1: Estudiante A: "Estudie..."
