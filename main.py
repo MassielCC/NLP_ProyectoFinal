@@ -14,8 +14,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Configura el logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Inicializar la clave API de OpenAI
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Inicializar el cliente de OpenAI con la clave API
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Configuración inicial de la página
 st.set_page_config(page_title="Nova-Infor", page_icon=":computer:")
@@ -109,8 +109,8 @@ def generate_response(prompt, temperature=0.5, max_tokens=1000):
         messages.insert(0, {"role": "system", "content": get_system_prompt()})
 
         try:
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            completion = client.chat.completions.create(
+                model="gpt-4o-mini",
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
