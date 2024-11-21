@@ -44,7 +44,7 @@ Archivo de Profesores{maestros}:
 Cada columna representa las respuestas de un profesor diferente a varias preguntas sobre su trayectoria y especialidad en Ingeniería Informática.
 Las filas contienen las respuestas a preguntas como: años de experiencia, áreas de especialización, motivaciones, expectativas sobre la carrera, especialidades más demandadas, y mucho más.
 Las preguntas específicas están relacionadas con aspectos clave como las tendencias en el campo, las habilidades técnicas requeridas y los desafíos en diversas especialidades.
-Archivo de Estudiantes {estudiante}:
+Archivo de Estudiantes {estudiantes}:
 
 Contiene respuestas de estudiantes sobre sus intereses y expectativas en la carrera de Ingeniería Informática.
 Estructura de los datos:
