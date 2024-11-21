@@ -30,7 +30,7 @@ def load(file_path):
     return load
 # Cargar 
 
-maestros = load("Entrevistas_maestros.csv")
+maestros = load("Entrevistas_maestros_ver2.csv")
 estudiantes = load("Entrevistas_estudiantes.csv")
 
 def get_system_prompt(maestros, estudiantes):
